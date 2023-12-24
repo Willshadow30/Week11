@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="node_modules/bootstrap/dist/css/bootstrap.css">
+    <script src="node_modules/jquery/dist/jquery.js"></script>
+    <script src="node_modules/bootstrap/dist/js/bootstrap.bundle.js"></script>
+    <style>       
+        body {
+            display: flex;        
+            align-items: center;
+            justify-content: center;
+            height: 100vh
+        }
+        .alert{
+            display: none;
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1000;
+        }
+    </style>
+    </head>
+    <body>
+        <div class="container"> <!--div are basically dividers that break up sections of a webpage, class allows you to styles mulitple elements of your webpage-->
+            <h1 id="turn">It's X's turn</h1> <!--Id us to style one specfic element of your webage-->
+            <table class="table table-bordered"> 
+                <tbody id="gameBoard">
+                </tbody>
+            </table>
+            <button class="btn btn-danger" id="restartBtn">Restart the game?</button> <!--button element defines just another to create a clickable button. can be use in place of the input element. just set the the type attribute to submit-->
+            <div class="alert alert-success" role="alert" id="winnerAlert">
+
+            </div>
+        </div>
+        <script>
+            function initGame(){  ///Functions serves to handle task within program that may required multiple times
+                currentPlayer = 'X';
+                gameBoard = ['','','','','','','','','',]; ///an Array can hold many variables 
+                gameActive = true;
+                updateBoard();
+                updateTurn();
+                $('#winnerAlert').hide(); //hide method hides selected elements
+            }
+            function updateBoard(){
+                $('#gameBoard').empty();
+                for(let i = 0; i < 9; i += 3){ // loops run same statments many times
+                    const row = $('<tr>');
+                    for (let j = 0; j < 3; j++){
+                        const index = i + j; // const keyword. once use a constant can't be assigned new value.
+                        row.append(`<td class="cell" data-index="${index}">${gameBoard[index]}</td>`);
+                    }    
+                    $('#gameBoard').append(row);
+                }
+                    $('.cell').click(cellClick);
+            }
+            function cellClick(){
+                let index =$(this).data('index');
+                if(gameBoard[index] === ''&& gameActive){
+                    gameBoard[index] = currentPlayer;
+                    updateBoard();
+                    if(checkWin()){
+                        $('#turn').text(`Player ${currentPlayer} wins!`);
+                        $('#winnerAlert').show();
+                        gameActive = false;
+                    } else if (gameBoard.indexOf('') === -1){ /// strict equality. else if runs til untill a true value occurs.
+                        $('#turn').text('its a draw!');
+                        $('#winnerAlert').show();
+                        gameActive = false;
+                    } else{ // runs only if the if statment is false
+                        currentPlayer = currentPlayer === 'X'? 'O': 'X';
+                        updateTurn();
+                    }
+                }
+            }
+            function updateTurn(){
+                $('#turn').text(`its ${currentPlayer}'s turn`);
+            }
+            function checkWin(){
+                const winningCombinations = [
+                    [0, 1, 2], [3, 4, 5], [6, 7, 8],
+                    [0, 3, 6], [1, 4, 7], [2, 5, 8],
+                    [0, 4, 8], [2, 4, 6]
+                ];
+                for (const combo of winningCombinations){
+                    const [a, b, c] = combo;
+                    if (gameBoard[a]!== '' && gameBoard[a] === gameBoard[b] && gameBoard[a] === gameBoard[c]){
+                        return true;
+                    }
+                }
+                return false;
+            }
+            $('#restartBtn').click(initGame);
+            let currentPlayer, gameBoard, gameActive;
+            initGame();
+        </script>
+    </body>
+    </html>
